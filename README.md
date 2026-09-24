@@ -6,6 +6,10 @@ Détachez la caméra de votre personnage, déplacez-vous librement dans le monde
 zoomez, figez le temps et suivez une cible, le tout directement en jeu, à la
 manière du Rockstar Editor.
 
+Il s'agit d'un **mod FiveM** (une *resource*) : il ne s'installe pas dans GTA V
+solo, mais sur un serveur FiveM, et fonctionne pour les joueurs connectés à ce
+serveur (voir [Installation](#installation)).
+
 ![FiveM](https://img.shields.io/badge/FiveM-cerulean-orange)
 ![Lua](https://img.shields.io/badge/Lua-5.4-blue)
 ![Client only](https://img.shields.io/badge/resource-client--only-lightgrey)
@@ -56,11 +60,17 @@ manière du Rockstar Editor.
 
 ## Installation
 
+Le mod s'installe côté serveur, comme n'importe quelle resource FiveM : les
+joueurs n'ont rien à installer, FiveM leur envoie automatiquement le script à
+la connexion.
+
 1. Téléchargez ou clonez ce dépôt dans le dossier `resources` de votre serveur FiveM :
    ```bash
    cd resources
    git clone <url-du-depot> playable_camera_mod
    ```
+   Si vous téléchargez le ZIP, décompressez-le et renommez le dossier en
+   `playable_camera_mod` (il doit contenir directement `fxmanifest.lua`).
 2. Ajoutez la ligne suivante dans votre `server.cfg` :
    ```cfg
    ensure playable_camera_mod
