@@ -183,13 +183,41 @@ console `F8`.
 
 ## Roadmap
 
+### Déjà disponible
+
 - [x] Caméra libre clavier / manette
 - [x] Zoom, vitesses réglables, tremblement
 - [x] Pause du temps
 - [x] Suivi de cible (orientation / poursuite)
 - [x] Streaming du monde autour de la caméra
+
+### Essentiel
+
+- [ ] **Vitesse de la caméra à la manette** : accélération continue tant que
+  le stick gauche est enfoncé (`L3` / `LS`), décélération continue tant que le
+  stick droit est enfoncé (`R3` / `RS`)
+- [ ] **Afficher / masquer le debug depuis la manette** (bouton `Select` / `View` ?)
+
+### Prioritaire
+
+- [ ] **Deux modes de suivi de cible**, choisis avec `Croix` / `A` :
+  - *Cible à filmer* (comportement actuel) : la caméra garde en permanence la cible dans l'objectif
+  - *Cible à suivre* : la caméra suit uniquement les déplacements de la cible, l'orientation reste libre
+- [ ] **Changer de cible** pendant le suivi avec la croix directionnelle (gauche / droite)
+- [ ] **Placements prédéfinis autour de la cible** :
+  - `Carré` / `X` : caméra verrouillée à gauche de la cible
+  - `Triangle` / `Y` : caméra verrouillée au-dessus de la cible
+  - `Rond` / `B` : caméra verrouillée à droite de la cible
+- [ ] **Contrôle de l'inclinaison** (roulis) de la caméra (contrôle à définir)
+
+### Fonctionnalités additionnelles
+
+- [ ] Profils personnalisés et macros
+- [ ] Bascule entre caméra NoClip et caméra avec collisions
+- [ ] Réglage de la profondeur de champ
+- [ ] Flou de mouvement (motion blur)
+- [ ] Déplacements scriptés / enregistrement et relecture de trajectoires de caméra
 - [ ] Option pour garder le personnage visible mais figé
-- [ ] Enregistrement et relecture de trajectoires de caméra
 
 ## Contribuer
 
