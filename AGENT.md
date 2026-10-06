@@ -103,6 +103,10 @@ camera_player_mod/
   avant d'être appliquée : ça donne une petite inertie/glisse et évite une
   rotation trop raide. Diminuer `LOOK_SMOOTHING` = plus d'inertie, augmenter
   = plus réactif/instantané.
+- Monter/descendre passe aussi par un lissage exponentiel
+  (`VERTICAL_SMOOTHING`, défaut `3.0` ≈ 1 s pour atteindre la pleine vitesse
+  ou s'arrêter) : `smoothVertical` tend vers -1/0/1 selon l'entrée, puis est
+  multiplié par la vitesse de déplacement.
 - **Monter/descendre : historique du bug (3 tentatives)**
   1. La version initiale lisait `INPUT_JUMP` (22) / `INPUT_DUCK` (36) pour
      Espace/Ctrl. Sur manette, un bouton inattendu (ex. Carré) semblait
@@ -177,6 +181,12 @@ camera_player_mod/
   `ZOOM_SPEED_MIN`). Volontairement pas d'équivalent manette : la manette a
   déjà sa propre sensibilité analogique (stick droit, gâchettes) qui n'a pas
   besoin d'un palier réglable de la même façon.
+  **Exception : vitesse de déplacement à la manette** via `L3` (`INPUT_DUCK`,
+  36) / `R3` (`INPUT_LOOK_BEHIND`, 26) maintenus : variation continue et
+  exponentielle (`MOVE_SPEED *= 2^(MOVE_SPEED_RAMP * dt)`), plancher
+  `MOVE_SPEED_MIN`, pas de plafond. 36 étant aussi `Ctrl` au clavier
+  (descendre), il n'est lu pour la vitesse que si `IsInputDisabled(2)` est
+  faux (entrée manette). 26 est désactivé dans la boucle principale.
 - **Raccourcis clavier dédiés (indépendants de la manette)** : ces réglages
   de vitesse ainsi que `HOME`/`END` (zoom) sont enregistrés via
   `RegisterCommand`/`RegisterKeyMapping` — un système d'input FiveM

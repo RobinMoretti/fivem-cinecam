@@ -103,17 +103,19 @@ restauré (HUD, temps, streaming).
 | Zoomer (FOV −) | `Début` (`HOME`) | `R2` / `RT` (progressif) |
 | Dézoomer (FOV +) | `Fin` (`END`) | `L2` / `LT` (progressif) |
 
-### Réglages de vitesse (clavier uniquement)
+### Réglages de vitesse
 
 | Action | Diminuer | Augmenter |
 |---|---|---|
-| Vitesse de déplacement | `Page ↓` | `Page ↑` |
+| Vitesse de déplacement | `Page ↓` / maintenir `R3` (`RS`) | `Page ↑` / maintenir `L3` (`LS`) |
 | Vitesse de rotation | `Suppr` (`DELETE`) | `Inser` (`INSERT`) |
 | Vitesse de zoom | `Pavé num. −` | `Pavé num. +` |
 | Intensité du tremblement | `F11` | `Pavé num. *` |
 
-La manette conserve sa sensibilité analogique naturelle (sticks et gâchettes) :
-ces réglages ne concernent que le clavier.
+À la manette, maintenir `L3` ou `R3` fait varier la vitesse de déplacement en
+continu (elle double ou diminue de moitié chaque seconde). Les autres réglages
+sont au clavier uniquement : la manette conserve sa sensibilité analogique
+naturelle (sticks et gâchettes).
 
 ### Outils
 
@@ -151,8 +153,10 @@ Les valeurs par défaut sont regroupées en haut de
 | Variable | Défaut | Description |
 |---|---|---|
 | `MOVE_SPEED` | `3.0` | Vitesse de déplacement (unités/s) |
+| `MOVE_SPEED_RAMP` | `1.0` | Rythme d'accélération manette `L3`/`R3` (doublements par seconde) |
 | `LOOK_SENSITIVITY` | `200.0` | Vitesse de rotation (°/s) |
 | `LOOK_SMOOTHING` | `8.0` | Inertie du regard (plus petit = plus fluide) |
+| `VERTICAL_SMOOTHING` | `3.0` | Inertie pour monter / descendre (`3.0` ≈ 1 s pour atteindre la pleine vitesse ou s'arrêter) |
 | `FOV_DEFAULT` | `50.0` | Champ de vision au lancement |
 | `FOV_MIN` / `FOV_MAX` | `10.0` / `90.0` | Limites du zoom |
 | `ZOOM_SPEED` | `30.0` | Vitesse du zoom (°/s) |

@@ -14,11 +14,13 @@ local camRot = vector3(0.0, 0.0, 0.0) -- x = pitch, y = roll (inutilisé), z = y
 local MOVE_SPEED = 3.0        -- unités GTA par seconde (ajustable au clavier, sans limite haute)
 local MOVE_SPEED_MIN = 0.5
 local MOVE_SPEED_STEP = 1.0   -- incrément par pression de PAGEUP/PAGEDOWN
+local MOVE_SPEED_RAMP = 1.0   -- manette (L3/R3 maintenu) : la vitesse double (ou est divisée par 2) toutes les 1/MOVE_SPEED_RAMP s
 
 local LOOK_SENSITIVITY = 200.0 -- degrés par seconde à pleine intensité (ajustable au clavier)
 local LOOK_SENSITIVITY_MIN = 20.0
 local LOOK_SENSITIVITY_STEP = 20.0 -- incrément par pression de INSERT/DELETE
 local LOOK_SMOOTHING = 8.0    -- + petit = plus d'inertie/glisse, + grand = plus réactif
+local VERTICAL_SMOOTHING = 3.0 -- inertie monter/descendre : ~95 % de la vitesse atteinte en 3/VERTICAL_SMOOTHING s (ici ~1 s)
 
 local FOV_DEFAULT = 50.0
 local FOV_MIN = 10.0   -- zoom max (téléobjectif)
@@ -42,6 +44,7 @@ local STREAM_ANCHOR_Z_OFFSET = 10.0 -- offset vertical de l'ancre (mètres) au-d
 
 local smoothLookLR = 0.0
 local smoothLookUD = 0.0
+local smoothVertical = 0.0 -- -1.0 (descendre) à 1.0 (monter), lissé
 local currentFov = FOV_DEFAULT
 local shakeEnabled = false
 local isTimePaused = false
@@ -146,6 +149,7 @@ local function EnableFreeCam()
     camRot = vector3(0.0, 0.0, heading)
     smoothLookLR = 0.0
     smoothLookUD = 0.0
+    smoothVertical = 0.0
     currentFov = FOV_DEFAULT
     hudVisible = true
     debugVisible = false
@@ -429,7 +433,8 @@ CreateThread(function()
             DisableControlAction(0, 31, true) -- INPUT_MOVE_UD
             DisableControlAction(0, 21, true) -- INPUT_SPRINT (Croix manette = tracking)
             DisableControlAction(0, 22, true) -- INPUT_JUMP (Espace clavier : monter / Carré manette)
-            DisableControlAction(0, 36, true) -- INPUT_DUCK (descendre)
+            DisableControlAction(0, 36, true) -- INPUT_DUCK (Ctrl clavier : descendre / L3 manette : accélérer)
+            DisableControlAction(0, 26, true) -- INPUT_LOOK_BEHIND (R3 manette : décélérer)
             DisableControlAction(0, 205, true) -- INPUT_FRONTEND_LB (L1 : descendre)
             DisableControlAction(0, 206, true) -- INPUT_FRONTEND_RB (R1 : monter)
             DisableControlAction(0, 37, true)  -- INPUT_SELECT_WEAPON (roue d'armes, aussi sur R1/RB)
@@ -450,6 +455,28 @@ CreateThread(function()
                 if not lastInputIsKeyboard then
                     Log('controller event: CROSS (INPUT_SPRINT 21)')
                     CycleTrack('controller-cross:21')
+                end
+            end
+
+            -- Vitesse de déplacement à la manette : L3 maintenu = accélération continue,
+            -- R3 maintenu = décélération continue. Progression exponentielle (la vitesse
+            -- double/est divisée par 2 à intervalle régulier) pour rester précis à basse
+            -- vitesse tout en atteignant vite les grandes vitesses. INPUT_DUCK (36) est
+            -- aussi Ctrl au clavier (descendre) : on ne le lit ici que sur manette.
+            if not isKeyboardInput then
+                if IsDisabledControlJustPressed(0, 36) then Log('controller event: L3 (INPUT_DUCK 36)') end
+                if IsDisabledControlJustPressed(0, 26) then Log('controller event: R3 (INPUT_LOOK_BEHIND 26)') end
+
+                local speedUp = IsDisabledControlPressed(0, 36)
+                local speedDown = IsDisabledControlPressed(0, 26)
+                if speedUp ~= speedDown then
+                    local rampFactor = 2.0 ^ (MOVE_SPEED_RAMP * frameTime)
+                    if speedUp then
+                        MOVE_SPEED = MOVE_SPEED * rampFactor
+                    else
+                        MOVE_SPEED = math.max(MOVE_SPEED_MIN, MOVE_SPEED / rampFactor)
+                    end
+                    ShowSubtitle(('Vitesse de deplacement : %.1f'):format(MOVE_SPEED))
                 end
             end
 
@@ -514,12 +541,16 @@ CreateThread(function()
             -- Espace/Ctrl (clavier, aussi Saut/Accroupi sur manette) ou L1/R1 (manette).
             -- Depuis que SetPlayerControl(false) n'est plus utilisé (voir EnableFreeCam),
             -- ces contrôles se lisent normalement, y compris sur manette.
-            local verticalOffset = 0.0
+            -- Lissage exponentiel (VERTICAL_SMOOTHING) : accélération et freinage progressifs.
+            local verticalInput = 0.0
             if (isKeyboardInput and IsDisabledControlPressed(0, 22)) or IsDisabledControlPressed(0, 206) then
-                verticalOffset = speed
+                verticalInput = 1.0
             elseif (isKeyboardInput and IsDisabledControlPressed(0, 36)) or IsDisabledControlPressed(0, 205) then
-                verticalOffset = -speed
+                verticalInput = -1.0
             end
+            local verticalFactor = math.min(1.0, VERTICAL_SMOOTHING * frameTime)
+            smoothVertical = smoothVertical + (verticalInput - smoothVertical) * verticalFactor
+            local verticalOffset = smoothVertical * speed
 
             -- Suivi en position (mode 2) : la caméra se déplace du même vecteur que la cible
             -- depuis la frame précédente, en plus du déplacement manuel (caméra de poursuite).
